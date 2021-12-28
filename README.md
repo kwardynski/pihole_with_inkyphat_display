@@ -24,8 +24,7 @@ the display was refreshed, as well as some basic Pi-hole info:
    a numpy dependency error. The solution was found on 
    [numpy's troubleshooting page](https://numpy.org/devdocs/user/troubleshooting-importerror.html), run:\
    `sudo apt-get install libatlas-base-dev`
-3. Clone this repo, and run `pip3 install -r requirements.txt` to get the font package
-   dependencies.
+3. Clone this repo.
 4. Edit your crontab file to set recurring screen refresh:
 
     ```
@@ -33,9 +32,9 @@ the display was refreshed, as well as some basic Pi-hole info:
     ```
     add this line:
     ```
-    */15 * * * * python <path to pihole_status_display.py>
+    */15 6-24 * * * python <path to pihole_status_display.py>
     ```
-    which will trigger the script every 15 minutes on the quarter hour.
+    which will trigger the script every 15 minutes on the quarter hour between the hours of 6am and midnight.
 
 ## How it works
 1. Get and format the update time - date and time at which the script was called. 

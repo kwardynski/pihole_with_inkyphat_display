@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 from PIL import Image, ImageFont, ImageDraw
-from font_source_sans_pro import SourceSansProSemibold
-from font_hanken_grotesk import HankenGroteskMedium
 from inky.auto import auto
 from datetime import datetime
 import requests, socket
@@ -57,9 +55,9 @@ def display_info(update_time, board_info, pihole_stats):
     dw = inky_display.WIDTH
     dh = inky_display.HEIGHT
     border_perc = 0.125
-    info_font = ImageFont.truetype(HankenGroteskMedium, 10)
+    info_font = ImageFont.truetype("fonts/SFMono-Regular.otf", 10)
     info_x_offset = 0.01
-    stats_font = ImageFont.truetype(SourceSansProSemibold, 13)
+    stats_font = ImageFont.truetype("fonts/SFMono-Bold.otf", 13)
     stats_x_offset = 0.02
     stats_loc = 0.1385
     stats_step = 0.1875
@@ -79,13 +77,13 @@ def display_info(update_time, board_info, pihole_stats):
 
     # Draw bottom "border" - display last update time
     draw.rectangle((0, (1-border_perc)*dh, dw, dh), fill=inky_display.BLACK, outline=inky_display.BLACK)
-    draw.text((info_x_offset*dw, 0.895*dh), f"Last Updated: {update_time}", inky_display.WHITE, font=info_font)
+    draw.text((info_x_offset*dw, 0.895*dh), f"Updated: {update_time}", inky_display.WHITE, font=info_font)
 
     # Display Stats
-    draw.text((stats_x_offset*dw, stats_loc*dh), f'Pi-hole Status: {pihole_stats["status"]}', stats_color, font=stats_font)
-    draw.text((stats_x_offset*dw, (stats_loc+stats_step)*dh), f'Connected Clients: {pihole_stats["unique_clients"]}', stats_color, font=stats_font)
-    draw.text((stats_x_offset*dw, (stats_loc+2*stats_step)*dh), f'Queries in Last 24 hrs: {pihole_stats["dns_queries_today"]}', stats_color, font=stats_font)
-    draw.text((stats_x_offset*dw, (stats_loc+3*stats_step)*dh), f'Queries Blocked: {pihole_stats["ads_blocked_today"]} ({pihole_stats["ads_percentage_today"]}%)', stats_color, font=stats_font)
+    draw.text((stats_x_offset*dw, stats_loc*dh), f'Status: {pihole_stats["status"]}', stats_color, font=stats_font)
+    draw.text((stats_x_offset*dw, (stats_loc+stats_step)*dh), f'Clients: {pihole_stats["unique_clients"]}', stats_color, font=stats_font)
+    draw.text((stats_x_offset*dw, (stats_loc+2*stats_step)*dh), f'Queries (24 hrs): {pihole_stats["dns_queries_today"]}', stats_color, font=stats_font)
+    draw.text((stats_x_offset*dw, (stats_loc+3*stats_step)*dh), f'Blocked: {pihole_stats["ads_blocked_today"]} ({pihole_stats["ads_percentage_today"]}%)', stats_color, font=stats_font)
 
     inky_display.set_image(image)
     inky_display.show()
