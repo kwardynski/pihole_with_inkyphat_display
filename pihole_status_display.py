@@ -2,7 +2,7 @@
 from PIL import Image, ImageFont, ImageDraw
 from inky.auto import auto
 from datetime import datetime
-import requests, socket
+import os, requests, socket
 
 
 
@@ -52,12 +52,13 @@ def display_info(update_time, board_info, pihole_stats):
     inky_display = auto()
 
     # Base drawing "variables"
+    fonts_path = f"{os.path.dirname(os.path.realpath(__file__))}/fonts"
     dw = inky_display.WIDTH
     dh = inky_display.HEIGHT
     border_perc = 0.125
-    info_font = ImageFont.truetype("fonts/SFMono-Regular.otf", 10)
+    info_font = ImageFont.truetype(f"{fonts_path}/SFMono-Regular.otf", 10)
     info_x_offset = 0.01
-    stats_font = ImageFont.truetype("fonts/SFMono-Bold.otf", 13)
+    stats_font = ImageFont.truetype(f"{fonts_path}/SFMono-Bold.otf", 13)
     stats_x_offset = 0.02
     stats_loc = 0.1385
     stats_step = 0.1875
