@@ -38,9 +38,9 @@ the display was refreshed, as well as some basic Pi-hole info:
     ```
     add this line:
     ```
-    */15 6-24 * * * python3 <path to pihole_status_display.py>
+    */15 6-23 * * * python3 <path to pihole_status_display.py>
     ```
-    which will trigger the script every 15 minutes on the quarter hour between the hours of 6am and midnight.
+    which will trigger the script every 15 minutes on the quarter hour between the hours of 6am and 11pm. 
 
 ## How it works
 1. Get and format the update time - date and time at which the script was called. 
