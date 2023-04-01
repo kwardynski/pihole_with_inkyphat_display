@@ -25,14 +25,20 @@ the display was refreshed, as well as some basic Pi-hole info:
    [numpy's troubleshooting page](https://numpy.org/devdocs/user/troubleshooting-importerror.html), run:\
    `sudo apt-get install libatlas-base-dev`
 3. Clone this repo.
-4. Edit your crontab file to set recurring screen refresh:
+4. Create a `.env` file in the root directory of the project and set the following variables:
+    ```
+    API_TOKEN=<api token from pihole settings>
+    HOSTNAME=<hostname of your pihole raspberrypi>
+    IP_ADDR=<ip address of your pihole>
+    ```
+5. Edit your crontab file to set recurring screen refresh:
 
     ```
-    crontab -e
+    sudo crontab -e
     ```
     add this line:
     ```
-    */15 6-24 * * * python <path to pihole_status_display.py>
+    */15 6-24 * * * python3 <path to pihole_status_display.py>
     ```
     which will trigger the script every 15 minutes on the quarter hour between the hours of 6am and midnight.
 

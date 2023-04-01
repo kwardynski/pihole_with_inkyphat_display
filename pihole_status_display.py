@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-from PIL import Image, ImageFont, ImageDraw
-from inky.auto import auto
 from datetime import datetime
-import os, requests, socket
+from inky.auto import auto
+from PIL import Image, ImageFont, ImageDraw
 
+import dotenv
+import os
+import requests
 
 
 # Returns the system time at which script was called
@@ -14,24 +16,14 @@ def get_update_time():
     return update_time_str
 
 
-# Returns board info as a dict containing hostname and ip address
-def get_board_info():
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(("8.8.8.8", 80))
-
-    board_info = dict()
-    board_info["hostname"] = socket.gethostname()
-    board_info["ip_address"] = s.getsockname()[0]
-    return board_info
-
-
 # Returns stats from pihole web API as a dict containing:
-#   unique clients, dns queries, ads blocked, block percentate
+#   unique clients, dns queries, ads blocked, block percentage
 # Returns status = "DOWN" if unable to connect/query the API
-def get_pihole_stats(pihole_ip):
-    api_path = f"http://{pihole_ip}/admin/api.php?summary"
+def get_pihole_stats(pihole_ip, api_token):
+    api_path = f"http://{pihole_ip}/admin/api.php?summary&auth={api_token}"
     pihole_stats = dict()
-    query_fields = ["unique_clients", "dns_queries_today", "ads_blocked_today", "ads_percentage_today"]
+    query_fields = ["unique_clients", "dns_queries_today",
+                    "ads_blocked_today", "ads_percentage_today"]
 
     try:
         api_raw = requests.get(api_path, verify=False, timeout=5).json()
@@ -46,7 +38,7 @@ def get_pihole_stats(pihole_ip):
 
 
 # Generates and renders the stats image for the InkyPHAT screen
-def display_info(update_time, board_info, pihole_stats):
+def display_info(update_time, hostname, ip_address, pihole_stats):
 
     # Initialize InkyPHAT instance
     inky_display = auto()
@@ -73,26 +65,36 @@ def display_info(update_time, board_info, pihole_stats):
     draw = ImageDraw.Draw(image)
 
     # Draw top "border" - display hostname and IP address
-    draw.rectangle((0, 0, dw, (border_perc)*dh), fill=inky_display.BLACK, outline=inky_display.BLACK)
-    draw.text((info_x_offset*dw, 0.0075*dh), f'{board_info["hostname"]}:{board_info["ip_address"]}', inky_display.WHITE, font=info_font)
+    draw.rectangle((0, 0, dw, (border_perc)*dh),
+                   fill=inky_display.BLACK, outline=inky_display.BLACK)
+    draw.text((info_x_offset*dw, 0.0075*dh),
+              f'{hostname}:{ip_address}', inky_display.WHITE, font=info_font)
 
     # Draw bottom "border" - display last update time
-    draw.rectangle((0, (1-border_perc)*dh, dw, dh), fill=inky_display.BLACK, outline=inky_display.BLACK)
-    draw.text((info_x_offset*dw, 0.895*dh), f"Updated: {update_time}", inky_display.WHITE, font=info_font)
+    draw.rectangle((0, (1-border_perc)*dh, dw, dh),
+                   fill=inky_display.BLACK, outline=inky_display.BLACK)
+    draw.text((info_x_offset*dw, 0.895*dh),
+              f"Updated: {update_time}", inky_display.WHITE, font=info_font)
 
     # Display Stats
-    draw.text((stats_x_offset*dw, stats_loc*dh), f'Status: {pihole_stats["status"]}', stats_color, font=stats_font)
-    draw.text((stats_x_offset*dw, (stats_loc+stats_step)*dh), f'Clients: {pihole_stats["unique_clients"]}', stats_color, font=stats_font)
-    draw.text((stats_x_offset*dw, (stats_loc+2*stats_step)*dh), f'Queries (24 hrs): {pihole_stats["dns_queries_today"]}', stats_color, font=stats_font)
-    draw.text((stats_x_offset*dw, (stats_loc+3*stats_step)*dh), f'Blocked: {pihole_stats["ads_blocked_today"]} ({pihole_stats["ads_percentage_today"]}%)', stats_color, font=stats_font)
+    draw.text((stats_x_offset*dw, stats_loc*dh),
+              f'Status: {pihole_stats["status"]}', stats_color, font=stats_font)
+    draw.text((stats_x_offset*dw, (stats_loc+stats_step)*dh),
+              f'Clients: {pihole_stats["unique_clients"]}', stats_color, font=stats_font)
+    draw.text((stats_x_offset*dw, (stats_loc+2*stats_step)*dh),
+              f'Queries (24 hrs): {pihole_stats["dns_queries_today"]}', stats_color, font=stats_font)
+    draw.text((stats_x_offset*dw, (stats_loc+3*stats_step)*dh),
+              f'Blocked: {pihole_stats["ads_blocked_today"]} ({pihole_stats["ads_percentage_today"]}%)', stats_color, font=stats_font)
 
     inky_display.set_image(image)
     inky_display.show()
 
 
-
 if __name__ == "__main__":
+    dotenv.load_dotenv()
+    api_token = os.getenv("API_TOKEN")
+    hostname = os.getenv("HOSTNAME")
+    ip_address = os.getenv("IP_ADDR")
     update_time = get_update_time()
-    board_info = get_board_info()
-    pihole_stats = get_pihole_stats(board_info["ip_address"])
-    display_info(update_time, board_info, pihole_stats)
+    pihole_stats = get_pihole_stats(ip_address, api_token)
+    display_info(update_time, hostname, ip_address, pihole_stats)
